@@ -9,7 +9,12 @@
     - [Create Block Diagram](#create-block-diagram-1)
       - [ZYNQ7 Processing System](#zynq7-processing-system)
       - [Clocking Wizard](#clocking-wizard)
+  - [Assign Address For AXI IPs](#assign-address-for-axi-ips)
   - [Generate Bitstream](#generate-bitstream)
+    - [Generate Output Products](#generate-output-products)
+    - [Create HDL Wrapper](#create-hdl-wrapper)
+    - [Add constraints](#add-constraints)
+    - [Synthesis, Implementation, and Generate Bitstream](#synthesis-implementation-and-generate-bitstream)
   - [Write Software in SDK](#write-software-in-sdk)
 
 ## Generate Custom IPs 
@@ -127,12 +132,46 @@ Click `Interrupts` at the `Page Navigator` at the left side of the window.
 Tick and Expand the tab `Fabric Interrupts`, then expands the subtab `PL-PS Interrupts Prots`, tick the option `IRQ_F2P[15:0]`
 
 #### Clocking Wizard
-Double click the IP clock, and then clock the `Output Clocks` at top side of the window, tick and enable two output clock named, `clk_out1` and `clk_out2`. Change the `clk_out1` to `12.288MHz` and `clk_out2` to `16MHz`  
+Double click the IP clock, and then clock the `Output Clocks` at top side of the window, tick and enable one output clock named, `clk_out1`. Change the `clk_out1` to `16MHz`  
 
-Once all custmizations are done, connect ALL IPs as shown in the figure below, *see expliaination below*
+--- 
+Once all custmizations are done, connect ALL IPs as shown in the figure below, **see Explaination below**
 ![Connections between IP](./pics/connections.png)
 
+Explaination: 
+1. for the two **self packaged IP**, except for the AXI interface, the **ports with the same name are connected**. E.g., the `rx_wdata[7:0]` from the AXI FIFO is connected to the port at the control module with same name. 
+2. **Double click interrupt of the AXI FIFO** and change the width from one to three. 
+3. All AXI IP are connected to the AXI interface and then to the ZYNQ Processing System. 
+4. One AXI interface consists of the five axi channels, aclk, and aresetn. 
+5. The lowest bits of the input of the concat IP are connected to the lowest bits of the output as well. Hence, in here, the lowest three bits are interrupts from the AXI FIFO, and the most significant bit are interrupt from the AXI timer. 
+6. Additional pins can be created by *right click* -> *create port*
+
+## Assign Address For AXI IPs 
+Once the all the IPs are connected, we need to assign addresses for each IP so that they can be accessed by the ZYNQ Processing System later. 
+
+Click the Address Editor at the top side of the block diagram editor. Assign the address for the IPs as shown in the figure below.  
+![Figure 7. Address for IPs](./pics/addressforips.png) 
+
+Once finished, return to the `Diagram` editor and click the icon or press `F6` validate design. If everything is correct, a info showing validation successful will pop up.  
+
 ## Generate Bitstream 
+
+### Generate Output Products 
+The first step is to generate the output pruduct for all IPs. From the `Soucres` located under the `project manager`, we can see the block diagram we just created. By default, it should be called `design_1_i`. **Right click** at the block diagram, and then click `Generate Output Products`. A windows will pop up, we only change the `synthesis option` to global and then click `generate`. 
+
+This Step will generate source files for the IPs based on our customation made when creating the block diagram. 
+
+### Create HDL Wrapper
+Again, right click at the block diagram, and then click `Create HDL Wrapper`. In this project, we will let vivado to manage the HDL wrapper. 
+
+### Add constraints 
+Then, we need to add constraints to the project. click the `+` at the `sources`, then select the `add or create constraints`. After that, add the file `./constraints/transmitter.xdc` to the project. 
+
+The constraints file tells the Vivado which physical port is connected to the ports in our design.   
+It also tells the Vivado to ignore different time path as they are not in the same time domain. 
+
+### Synthesis, Implementation, and Generate Bitstream
+Now what we need to do is simply follow the `Flow Navigator`, Synthesis, Implementation, and generate bitstream. As we all use default settings during these three stages, just simply click and coresponding button and next until all the processes are finished. 
 
 ## Write Software in SDK 
 
