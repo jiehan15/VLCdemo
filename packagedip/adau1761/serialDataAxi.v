@@ -51,7 +51,7 @@ module serialDataAxi (
     parameter FIFO_WIDTH = 16;   
 
     parameter FIFO_TIMEOUT = 32; 
-    parameter FIFO_OVERRUN = 32768; 
+    parameter FIFO_OVERRUN = 60000; // max 65536
 
     // write addr; 
     reg saxi_awready; assign saxi_AWREADY = saxi_awready; 
@@ -239,16 +239,23 @@ module serialDataAxi (
         .tout(tx_tout)
     ); 
 
+    reg inied;
+
     always @(posedge aclk or negedge aresetn) begin 
         if(!aresetn) begin 
             tx_wdata <= 32'h0; 
             tx_winc <= 1'b0; 
+            inied <= 1'b0; 
         end else begin 
             if(saxi_WVALID & saxi_wready) begin 
                 case(saxi_awaddr)
                     TxBaseAddr: begin 
                         tx_wdata <= saxi_WDATA; 
                         tx_winc <= 1'b1; 
+                    end 
+
+                    BaseAddr: begin 
+                        inied <= saxi_WDATA; 
                     end 
 
                     default: begin end// do nothing 
@@ -260,12 +267,16 @@ module serialDataAxi (
             end 
         end 
     end 
-
+ 
     // read regs 
     always @(*) begin 
         case(saxi_araddr_buffer)
-            RxBaseAddr: begin 
-                axi_data_to_read = {32{tx_wfull}};
+            TxBaseAddr: begin 
+                axi_data_to_read = {32{tx_overrun}};
+            end 
+
+            BaseAddr: begin 
+                axi_data_to_read = {32{inied}};
             end 
             default: begin end // do nothing  
         endcase 

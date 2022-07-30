@@ -19,8 +19,10 @@ git clone --recursive https://github.com/jiehan15/VLCdemo.git
 ```
 
 ## Step 2: Create Hardware 
-Following [this tutorial](./docs/transmitter.md) to create hardware platform for the **transmitter**.  
 Following [this tutorial](./docs/receiver.md) to create hardware platform for the **receiver**.  
+Following [this tutorial](./docs/transmitter.md) to create hardware platform for the **transmitter**.  
+
+*It is highly recommand to build the receiver first as it is a more detailed tutorial*
 
 ## Step 3: Create Programs for the Hardware 
 See [this tutorial](./docs/softwares.md) for software for the VLC system. 

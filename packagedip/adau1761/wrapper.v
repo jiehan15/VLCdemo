@@ -46,7 +46,7 @@ module serialWrapper(
     wire rempty; 
 
     serialDataAxi #(
-        .BaseAddr(BaseAddr), 
+        .BaseAddr(BaseAddr)
     ) sdataAXI(
         .aclk(aclk), 
         .aresetn(aresetn), 
