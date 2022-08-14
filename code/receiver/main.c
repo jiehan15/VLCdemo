@@ -1,7 +1,7 @@
 /*
  * main.c
  *
- *  Created on: 2022Äê7ÔÂ7ÈÕ
+ *  Created on: 2022 July 7
  *      Author: hanji
  */
 #include "xparameters.h"
@@ -37,6 +37,8 @@
 #define TIMER_IRPT_INTR 	XPAR_SCUTIMER_INTR
 // the frequency of the timer is half the CPU freq
 #define TIMER_LOAD_VALUE	(XPAR_CPU_CORTEXA9_0_CPU_CLK_FREQ_HZ/2000)/5
+
+#define ADAU1761SERIAL_BASEADDR XPAR_ADAU1761CTRL_SERIALWRAPPER_0_BASEADDR
 
 // interrupt controller driver instance
 XScuGic Intc;
@@ -353,9 +355,9 @@ int main(){
 						// write pcm values to ADAU1761 Rx FIFO
 						int i=0;
 						while(i<MINIMP3_MAX_SAMPLES_PER_FRAME){
-							if(Xil_In32(XPAR_SERIALWRAPPER_0_BASEADDR + 0x4) != 0xffffffff){
+							if(Xil_In32(ADAU1761SERIAL_BASEADDR + 0x4) != 0xffffffff){
 								// switch byte sequence
-								Xil_Out32(XPAR_SERIALWRAPPER_0_BASEADDR + 0x4, pcm[i]);
+								Xil_Out32(ADAU1761SERIAL_BASEADDR + 0x4, pcm[i]);
 								i++;
 							}
 						}
@@ -384,6 +386,7 @@ int main(){
 				xil_printf("Recv Finished\r\nRequest File Len: %u, Recv len: %u\r\nValid MP3 Frames: %u\r\n",
 						filelen, recvlen, mp3frames);
 				nxtState = 0x5;
+				sendCMD(0xb, 0x0, 0x0, 0x0);
 
 				// print to LCD
 				LCD_DrawRect(0xffff, 10, 280, 400, 45);

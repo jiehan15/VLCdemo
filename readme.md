@@ -25,7 +25,7 @@ Following [this tutorial](./docs/transmitter.md) to create hardware platform for
 *It is highly recommand to build the receiver first as it is a more detailed tutorial*
 
 ## Step 3: Create Programs for the Hardware 
-See [this tutorial](./docs/softwares.md) for software for the VLC system. 
+See [this tutorial](./docs/resoftwares.md) for software for the VLC system. 
 
 ---
 
